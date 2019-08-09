@@ -250,6 +250,10 @@ func ignitionVolumeName(volumeName string) string {
 // is the caller's responsiblity to free this.
 func (a *Actuator) createVolumeAndDomain(machine *machinev1.Machine, machineProviderConfig *providerconfigv1.LibvirtMachineProviderConfig, client libvirtclient.Client) (*libvirt.Domain, error) {
 	domainName := machine.Name
+	hostName := domainName
+	if machineProviderConfig.NetworkInterfaceHostname != "" {
+		hostName = machineProviderConfig.NetworkInterfaceHostname
+	}
 
 	// Create volume
 	if err := client.CreateVolume(
@@ -272,7 +276,7 @@ func (a *Actuator) createVolumeAndDomain(machine *machinev1.Machine, machineProv
 		NetworkInterfaceName:    machineProviderConfig.NetworkInterfaceName,
 		NetworkInterfaceAddress: machineProviderConfig.NetworkInterfaceAddress,
 		ReservedLeases:          a.reservedLeases,
-		HostName:                domainName,
+		HostName:                hostName,
 		Autostart:               machineProviderConfig.Autostart,
 		DomainMemory:            machineProviderConfig.DomainMemory,
 		DomainVcpu:              machineProviderConfig.DomainVcpu,
